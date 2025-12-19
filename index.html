@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocole d'Association - BLAN'LIA STUDIO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-dark: #1a1a2e;
+            --primary-accent: #c9a227;
+            --text-dark: #2d2d2d;
+            --text-light: #666666;
+            --bg-cream: #faf9f7;
+            --bg-white: #ffffff;
+            --border-light: #e8e6e3;
+            --border-gold: #c9a227;
+            --success-green: #2e7d32;
+            --shadow-soft: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e6e3 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-dark);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .toolbar-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+        }
+
+        .save-status {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-status.saved {
+            color: #4caf50;
+        }
+
+        .save-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: var(--primary-dark);
+        }
+
+        .btn-primary:hover {
+            background: #d4af37;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+        }
+
+        /* Document */
+        .document {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-medium);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            background: linear-gradient(180deg, var(--primary-dark) 0%, #16213e 100%);
+            color: white;
+            padding: 60px 50px;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-page::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(ellipse, rgba(201, 162, 39, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cover-header {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover-type {
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--primary-accent);
+            margin-bottom: 20px;
+        }
+
+        .cover-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .cover-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 300;
+        }
+
+        .cover-divider {
+            width: 80px;
+            height: 2px;
+            background: var(--primary-accent);
+            margin: 40px auto;
+        }
+
+        .cover-parties {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .party-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .party-label {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-accent);
+            margin-bottom: 12px;
+        }
+
+        .party-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .party-role {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .parties-connector {
+            font-size: 1.5rem;
+            color: var(--primary-accent);
+        }
+
+        .cover-project {
+            text-align: center;
+            padding: 30px;
+            background: rgba(201, 162, 39, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .project-label {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-accent);
+            margin-bottom: 8px;
+        }
+
+        .project-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+        }
+
+        .project-url {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 8px;
+        }
+
+        .cover-footer {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover-date {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .cover-confidential {
+            margin-top: 16px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-accent);
+            padding: 8px 16px;
+            border: 1px solid var(--primary-accent);
+            display: inline-block;
+            border-radius: 4px;
+        }
+
+        /* Document Content */
+        .document-content {
+            padding: 50px 60px;
+        }
+
+        /* Table of Contents */
+        .toc {
+            margin-bottom: 50px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .toc-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 0;
+            border-bottom: 1px dotted var(--border-light);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .toc-item:hover {
+            color: var(--primary-accent);
+        }
+
+        .toc-item-main {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .toc-item-sub {
+            padding-left: 24px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-accent);
+        }
+
+        .subsection {
+            margin-bottom: 30px;
+        }
+
+        .subsection-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+        }
+
+        .article {
+            margin-bottom: 24px;
+        }
+
+        .article-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+        }
+
+        .article-content {
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        .article-content p {
+            margin-bottom: 12px;
+        }
+
+        /* Editable Fields */
+        .editable {
+            background: rgba(201, 162, 39, 0.08);
+            border: 1px dashed var(--primary-accent);
+            padding: 2px 6px;
+            border-radius: 3px;
+            min-width: 100px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .editable:hover {
+            background: rgba(201, 162, 39, 0.15);
+        }
+
+        .editable:focus {
+            outline: none;
+            background: rgba(201, 162, 39, 0.2);
+            border-style: solid;
+        }
+
+        .editable:empty::before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Lists */
+        .legal-list {
+            margin: 16px 0 16px 24px;
+        }
+
+        .legal-list li {
+            margin-bottom: 8px;
+            padding-left: 8px;
+        }
+
+        .legal-list-alpha {
+            list-style-type: lower-alpha;
+        }
+
+        .legal-list-roman {
+            list-style-type: lower-roman;
+        }
+
+        /* Tables */
+        .legal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .legal-table th,
+        .legal-table td {
+            border: 1px solid var(--border-light);
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .legal-table th {
+            background: var(--bg-cream);
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .legal-table tr:nth-child(even) {
+            background: rgba(250, 249, 247, 0.5);
+        }
+
+        /* Signature Block */
+        .signature-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px solid var(--border-light);
+            page-break-inside: avoid;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 40px;
+        }
+
+        .signature-box {
+            text-align: center;
+        }
+
+        .signature-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        .signature-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            margin-bottom: 60px;
+        }
+
+        .signature-line {
+            border-top: 1px solid var(--text-dark);
+            padding-top: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Print Styles */
+        @media print {
+            .toolbar {
+                display: none !important;
+            }
+
+            .main-container {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .document {
+                box-shadow: none;
+            }
+
+            .cover-page {
+                min-height: 100vh;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .editable {
+                background: none;
+                border: none;
+                padding: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+
+            .main-container {
+                padding: 120px 12px 24px;
+            }
+
+            .document-content {
+                padding: 30px 24px;
+            }
+
+            .cover-page {
+                padding: 40px 24px;
+            }
+
+            .cover-title {
+                font-size: 2rem;
+            }
+
+            .cover-parties {
+                grid-template-columns: 1fr;
+            }
+
+            .parties-connector {
+                transform: rotate(90deg);
+            }
+
+            .signature-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 46, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(201, 162, 39, 0.2);
+            border-top-color: var(--primary-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Annexes */
+        .annexe {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 2px solid var(--primary-accent);
+        }
+
+        .annexe-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background: var(--bg-cream);
+            border-left: 4px solid var(--primary-accent);
+            padding: 16px 20px;
+            margin: 16px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .highlight-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        /* Page numbers for print */
+        .page-number {
+            display: none;
+        }
+
+        @media print {
+            .page-number {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                font-size: 0.9rem;
+                color: var(--text-light);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Génération du PDF en cours...</div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="toolbar-logo">PROTOCOLE D'ASSOCIATION</div>
+            <div class="save-status" id="saveStatus">Modifications non sauvegardées</div>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn btn-secondary" onclick="resetDocument()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                Réinitialiser
+            </button>
+            <button class="btn btn-primary" onclick="downloadPDF()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Télécharger PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="document" id="document">
+            
+            <!-- Cover Page -->
+            <div class="cover-page">
+                <div class="cover-header">
+                    <div class="cover-type">Document Confidentiel</div>
+                    <h1 class="cover-title">Protocole d'Association</h1>
+                    <p class="cover-subtitle">Constitution d'une Société à Responsabilité Limitée</p>
+                    <div class="cover-divider"></div>
+                </div>
+
+                <div class="cover-parties">
+                    <div class="party-box">
+                        <div class="party-label">Partie 1 - Fondateur Technique</div>
+                        <div class="party-name" contenteditable="true" data-field="founder_name">Monsieur Jad [NOM]</div>
+                        <div class="party-role">Créateur & Développeur</div>
+                    </div>
+                    <div class="parties-connector">&</div>
+                    <div class="party-box">
+                        <div class="party-label">Partie 2 - Investisseur Stratégique</div>
+                        <div class="party-name">KEF Ventures</div>
+                        <div class="party-role">Représentée par M. Karim EL-FEKKAK</div>
+                    </div>
+                </div>
+
+                <div class="cover-project">
+                    <div class="project-label">Projet</div>
+                    <div class="project-name">BLAN'LIA STUDIO</div>
+                    <div class="project-url">www.blanlia.ma</div>
+                </div>
+
+                <div class="cover-footer">
+                    <div class="cover-date">Fait à <span contenteditable="true" data-field="city" class="editable">Casablanca</span>, le <span contenteditable="true" data-field="date" class="editable">____/____/2025</span></div>
+                    <div class="cover-confidential">Confidentiel</div>
+                </div>
+            </div>
+
+            <!-- Document Content -->
+            <div class="document-content">
+                
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h2 class="toc-title">Table des Matières</h2>
+                    <ul class="toc-list">
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('preambule')"><span>Préambule</span><span>3</span></li>
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('partie1')"><span>Partie 1 : Structure et Modalités de la Newco</span><span>4</span></li>
+                        <li class="toc-item toc-item-sub"><span>1.1 Identification et Forme Juridique</span><span>4</span></li>
+                        <li class="toc-item toc-item-sub"><span>1.2 Capital Social et Répartition</span><span>5</span></li>
+                        <li class="toc-item toc-item-sub"><span>1.3 Propriété Intellectuelle</span><span>7</span></li>
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('partie2')"><span>Partie 2 : Gouvernance et Responsabilités</span><span>9</span></li>
+                        <li class="toc-item toc-item-sub"><span>2.1 Organes de Direction</span><span>9</span></li>
+                        <li class="toc-item toc-item-sub"><span>2.2 Responsabilités Opérationnelles</span><span>11</span></li>
+                        <li class="toc-item toc-item-sub"><span>2.3 Engagements des Associés</span><span>13</span></li>
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('partie3')"><span>Partie 3 : Pacte d'Associés</span><span>15</span></li>
+                        <li class="toc-item toc-item-sub"><span>3.1 Droits de Vote et Majorités</span><span>15</span></li>
+                        <li class="toc-item toc-item-sub"><span>3.2 Clauses de Cession et Sortie</span><span>17</span></li>
+                        <li class="toc-item toc-item-sub"><span>3.3 Clauses Spécifiques Startup</span><span>19</span></li>
+                        <li class="toc-item toc-item-sub"><span>3.4 Sortie et Dissolution</span><span>21</span></li>
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('partie4')"><span>Partie 4 : Plan d'Action Stratégique</span><span>23</span></li>
+                        <li class="toc-item toc-item-sub"><span>4.1 Levée de Fonds - Maroc Digital 2030</span><span>23</span></li>
+                        <li class="toc-item toc-item-sub"><span>4.2 Stratégie Marketing Digital</span><span>25</span></li>
+                        <li class="toc-item toc-item-sub"><span>4.3 Promotion Commerciale B2B</span><span>27</span></li>
+                        <li class="toc-item toc-item-sub"><span>4.4 R&D et Amélioration Produit</span><span>29</span></li>
+                        <li class="toc-item toc-item-sub"><span>4.5 Expansion Internationale</span><span>31</span></li>
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('partie5')"><span>Partie 5 : Dispositions Financières</span><span>33</span></li>
+                        <li class="toc-item toc-item-main" onclick="scrollToSection('annexes')"><span>Annexes</span><span>35</span></li>
+                    </ul>
+                </div>
+
+                <!-- PRÉAMBULE -->
+                <div class="section" id="preambule">
+                    <h2 class="section-title">Préambule</h2>
+                    
+                    <div class="article">
+                        <div class="article-content">
+                            <p><strong>ENTRE LES SOUSSIGNÉS :</strong></p>
+                            
+                            <p><strong>D'une part,</strong></p>
+                            <p>Monsieur <span contenteditable="true" class="editable" data-field="founder_full_name" data-placeholder="[Prénom NOM]">Jad [NOM À COMPLÉTER]</span>, de nationalité <span contenteditable="true" class="editable" data-field="founder_nationality" data-placeholder="[nationalité]">marocaine</span>, né le <span contenteditable="true" class="editable" data-field="founder_birthdate" data-placeholder="[date]">____/____/____</span> à <span contenteditable="true" class="editable" data-field="founder_birthplace" data-placeholder="[lieu]">____________</span>, titulaire de la CIN n° <span contenteditable="true" class="editable" data-field="founder_cin" data-placeholder="[numéro CIN]">____________</span>, demeurant à <span contenteditable="true" class="editable" data-field="founder_address" data-placeholder="[adresse complète]">____________</span>,</p>
+                            <p>Ci-après dénommé <strong>« le Fondateur »</strong> ou <strong>« Mr. Jad »</strong>,</p>
+                            
+                            <p><strong>Et d'autre part,</strong></p>
+                            <p>La société <strong>KEF Ventures</strong>, société <span contenteditable="true" class="editable" data-field="kef_form" data-placeholder="[forme juridique]">____________</span> au capital de <span contenteditable="true" class="editable" data-field="kef_capital" data-placeholder="[montant]">____________</span> dirhams, immatriculée au Registre du Commerce de <span contenteditable="true" class="editable" data-field="kef_rc_city" data-placeholder="[ville]">____________</span> sous le numéro <span contenteditable="true" class="editable" data-field="kef_rc" data-placeholder="[numéro RC]">____________</span>, dont le siège social est sis à <span contenteditable="true" class="editable" data-field="kef_address" data-placeholder="[adresse]">____________</span>,</p>
+                            <p>Représentée aux fins des présentes par Monsieur <strong>Karim EL-FEKKAK</strong>, en sa qualité de <span contenteditable="true" class="editable" data-field="kef_quality" data-placeholder="[qualité]">Gérant</span>,</p>
+                            <p>Ci-après dénommée <strong>« l'Investisseur »</strong> ou <strong>« KEF Ventures »</strong>,</p>
+                            
+                            <p>Le Fondateur et l'Investisseur étant ci-après dénommés ensemble les <strong>« Parties »</strong> et individuellement une <strong>« Partie »</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="article">
+                        <h4 class="article-title">IL A ÉTÉ PRÉALABLEMENT EXPOSÉ CE QUI SUIT :</h4>
+                        <div class="article-content">
+                            <p><strong>A.</strong> Le Fondateur a conçu et développé une solution logicielle en mode SaaS (Software as a Service) dénommée <strong>« BLAN'LIA STUDIO »</strong>, accessible via le site internet www.blanlia.ma, destinée aux professionnels de l'architecture et de l'immobilier.</p>
+                            
+                            <p><strong>B.</strong> La Solution BLAN'LIA STUDIO intègre des technologies d'intelligence artificielle permettant notamment :</p>
+                            <ul class="legal-list">
+                                <li>La conversion de croquis architecturaux en rendus photoréalistes (Sketch → Image) ;</li>
+                                <li>La transformation de plans 2D en visualisations 3D (2D → 3D) ;</li>
+                                <li>L'amélioration de plans d'étage en représentations 2D détaillées (Floor Plan → 2D) ;</li>
+                                <li>Le design d'intérieur automatisé.</li>
+                            </ul>
+                            
+                            <p><strong>C.</strong> Le Fondateur a développé un Proof of Concept (POC) fonctionnel de la Solution, actuellement en phase de pré-commercialisation, proposé au tarif de 189 MAD par mois.</p>
+                            
+                            <p><strong>D.</strong> KEF Ventures est une société d'investissement spécialisée dans les technologies innovantes, détenue et dirigée par Monsieur Karim EL-FEKKAK, disposant d'une expertise en développement commercial, stratégie d'entreprise et levée de fonds.</p>
+                            
+                            <p><strong>E.</strong> Les Parties ont manifesté leur volonté de s'associer en vue de créer une société commune (la <strong>« Newco »</strong>) ayant pour objet le développement, la commercialisation et l'exploitation de la Solution BLAN'LIA STUDIO à grande échelle, tant au niveau national qu'international.</p>
+                            
+                            <p><strong>F.</strong> Le présent protocole a pour objet de définir les modalités de leur association, les conditions de création de la Newco, les engagements respectifs des Parties, ainsi que le plan d'action stratégique de la Newco.</p>
+                        </div>
+                    </div>
+
+                    <div class="article">
+                        <h4 class="article-title">CECI EXPOSÉ, IL A ÉTÉ CONVENU CE QUI SUIT :</h4>
+                    </div>
+                </div>
+
+                <!-- PARTIE 1 -->
+                <div class="section" id="partie1">
+                    <h2 class="section-title">PARTIE 1 : Structure et Modalités de la Newco</h2>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 1.1 - Identification et Forme Juridique</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">1.1.1 Dénomination sociale</h4>
+                            <div class="article-content">
+                                <p>La société sera constituée sous la dénomination sociale <strong>« <span contenteditable="true" class="editable" data-field="company_name" data-placeholder="[dénomination]">BLAN'LIA TECH</span> »</strong>, ou toute autre dénomination convenue d'un commun accord entre les Parties.</p>
+                                <p>La dénomination sociale pourra être suivie ou précédée de la mention de la forme juridique et du montant du capital social.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.1.2 Forme juridique</h4>
+                            <div class="article-content">
+                                <p>La Newco sera constituée sous la forme d'une <strong>Société à Responsabilité Limitée (SARL)</strong>, régie par les dispositions de la loi n° 5-96 sur les sociétés en nom collectif, les sociétés en commandite simple, les sociétés en commandite par actions, les sociétés à responsabilité limitée et les sociétés en participation, telle que modifiée et complétée.</p>
+                                
+                                <div class="highlight-box">
+                                    <div class="highlight-box-title">Justification du choix de la SARL :</div>
+                                    <ul class="legal-list">
+                                        <li>Souplesse de fonctionnement adaptée au stade de développement de la startup ;</li>
+                                        <li>Responsabilité limitée des associés au montant de leurs apports ;</li>
+                                        <li>Formalités de constitution et de gestion simplifiées ;</li>
+                                        <li>Possibilité de transformation ultérieure en SA pour les besoins de levées de fonds plus importantes ;</li>
+                                        <li>Cadre juridique bien établi au Maroc pour les startups technologiques.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.1.3 Siège social</h4>
+                            <div class="article-content">
+                                <p>Le siège social de la Newco sera fixé à :</p>
+                                <p><span contenteditable="true" class="editable" data-field="siege_social" data-placeholder="[adresse complète du siège social]" style="display: block; min-width: 100%;">____________________________________________</span></p>
+                                <p>Il pourra être transféré en tout autre lieu de la même ville par décision du Gérant, et dans toute autre localité par décision collective des associés statuant dans les conditions prévues pour les modifications statutaires.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.1.4 Durée</h4>
+                            <div class="article-content">
+                                <p>La durée de la Newco est fixée à <strong>quatre-vingt-dix-neuf (99) ans</strong> à compter de son immatriculation au Registre du Commerce, sauf dissolution anticipée ou prorogation décidée par les associés.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.1.5 Objet social</h4>
+                            <div class="article-content">
+                                <p>La Newco aura pour objet, au Maroc et à l'étranger, directement ou indirectement :</p>
+                                <ul class="legal-list">
+                                    <li>La conception, le développement, l'édition et l'exploitation de solutions logicielles en mode SaaS (Software as a Service), notamment dans les domaines de l'architecture, de l'immobilier et du design ;</li>
+                                    <li>Le développement et la commercialisation de technologies d'intelligence artificielle appliquées à la génération d'images, à la modélisation 3D et au design d'intérieur ;</li>
+                                    <li>L'exploitation de la plateforme BLAN'LIA STUDIO et de tout développement connexe ;</li>
+                                    <li>La fourniture de services de conseil, formation et assistance technique dans les domaines précités ;</li>
+                                    <li>L'acquisition, le dépôt, l'exploitation et la cession de tous brevets, marques, licences, savoir-faire et droits de propriété intellectuelle ;</li>
+                                    <li>La prise de participations dans toutes sociétés ou entreprises, la création de filiales ;</li>
+                                    <li>Et plus généralement, toutes opérations commerciales, industrielles, financières, mobilières et immobilières se rattachant directement ou indirectement à l'objet social ou susceptibles d'en faciliter l'extension ou le développement.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 1.2 - Capital Social et Répartition</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">1.2.1 Montant du capital social</h4>
+                            <div class="article-content">
+                                <p>Le capital social de la Newco est fixé à la somme de <strong>CENT MILLE DIRHAMS (100.000 DH)</strong>, divisé en <strong>mille (1.000) parts sociales</strong> de cent dirhams (100 DH) chacune, numérotées de 1 à 1.000, entièrement souscrites et libérées.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.2.2 Répartition du capital</h4>
+                            <div class="article-content">
+                                <p>Le capital social sera réparti entre les associés comme suit :</p>
+                                
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Associé</th>
+                                            <th>Nature de l'apport</th>
+                                            <th>Montant (DH)</th>
+                                            <th>Nombre de parts</th>
+                                            <th>Pourcentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>KEF Ventures</td>
+                                            <td>Apport en numéraire</td>
+                                            <td>60.000</td>
+                                            <td>600</td>
+                                            <td><strong>60%</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mr. Jad</td>
+                                            <td>Apport en nature</td>
+                                            <td>40.000</td>
+                                            <td>400</td>
+                                            <td><strong>40%</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>TOTAL</strong></td>
+                                            <td></td>
+                                            <td><strong>100.000</strong></td>
+                                            <td><strong>1.000</strong></td>
+                                            <td><strong>100%</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <div class="highlight-box">
+                                    <div class="highlight-box-title">Analyse des implications de la répartition 60/40 :</div>
+                                    <ul class="legal-list">
+                                        <li><strong>Pour KEF Ventures (60%) :</strong> Position majoritaire permettant le contrôle des décisions ordinaires, responsabilité de la stratégie financière et commerciale, capacité à sécuriser les investissements réalisés.</li>
+                                        <li><strong>Pour Mr. Jad (40%) :</strong> Participation significative valorisant son apport intellectuel, protection par les droits de minorité (notamment le droit de veto sur certaines décisions stratégiques), maintien de la motivation entrepreneuriale.</li>
+                                        <li><strong>Équilibre général :</strong> Cette répartition permet de concilier le contrôle majoritaire de l'investisseur avec la protection et la motivation du fondateur technique, tout en préservant un alignement d'intérêts sur le long terme.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.2.3 Nature et description des apports</h4>
+                            <div class="article-content">
+                                <p><strong>A. Apport en numéraire de KEF Ventures</strong></p>
+                                <p>KEF Ventures s'engage à apporter la somme de <strong>soixante mille dirhams (60.000 DH)</strong> en numéraire, qui sera déposée sur un compte bloqué ouvert au nom de la société en formation auprès d'un établissement bancaire agréé, préalablement à la signature des statuts constitutifs.</p>
+                                
+                                <p><strong>B. Apport en nature de Mr. Jad</strong></p>
+                                <p>Mr. Jad apporte à la Newco, à titre d'apport en nature évalué à la somme de <strong>quarante mille dirhams (40.000 DH)</strong>, l'ensemble des éléments suivants :</p>
+                                <ul class="legal-list">
+                                    <li>Le code source complet de la plateforme BLAN'LIA STUDIO, dans son état actuel de développement (POC fonctionnel) ;</li>
+                                    <li>L'ensemble des droits de propriété intellectuelle attachés à la Solution, incluant les algorithmes d'intelligence artificielle développés ;</li>
+                                    <li>La marque « BLAN'LIA » et les éléments d'identité visuelle associés ;</li>
+                                    <li>Le nom de domaine www.blanlia.ma ;</li>
+                                    <li>L'ensemble de la documentation technique, des bases de données d'entraînement et des modèles d'IA développés ;</li>
+                                    <li>La base clients existante et les données d'utilisation ;</li>
+                                    <li>Le savoir-faire technique du Fondateur relatif à la Solution.</li>
+                                </ul>
+                                <p>L'inventaire détaillé des éléments apportés figure en <strong>Annexe 2</strong> au présent protocole.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.2.4 Méthodologie de valorisation des apports immatériels</h4>
+                            <div class="article-content">
+                                <p>La valorisation de l'apport en nature de Mr. Jad à hauteur de 40.000 DH a été déterminée selon la méthodologie suivante :</p>
+                                <ul class="legal-list">
+                                    <li><strong>Coût de développement reconstitué :</strong> Estimation du temps de développement (homme-jours) multiplié par le taux journalier moyen d'un développeur senior spécialisé en IA ;</li>
+                                    <li><strong>Valeur stratégique de la PI :</strong> Prise en compte du potentiel commercial de la Solution et de son caractère innovant sur le marché marocain ;</li>
+                                    <li><strong>Comparables de marché :</strong> Analyse des valorisations de startups SaaS similaires au stade POC.</li>
+                                </ul>
+                                <p>Les Parties conviennent que cette valorisation, bien que prudente au regard du potentiel de la Solution, reflète un accord équilibré tenant compte du stade précoce de développement et des investissements futurs nécessaires.</p>
+                                <p>Conformément à l'article 53 de la loi 5-96, la valeur des apports en nature n'excédant pas la moitié du capital social, les associés peuvent décider à l'unanimité de ne pas recourir à un commissaire aux apports. Les Parties conviennent d'exercer cette faculté et déclarent approuver la valorisation ci-dessus.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.2.5 Calendrier de libération du capital</h4>
+                            <div class="article-content">
+                                <p>L'intégralité du capital social sera libérée lors de la constitution de la Newco :</p>
+                                <ul class="legal-list">
+                                    <li>Les apports en numéraire de KEF Ventures seront déposés sur le compte bloqué dans un délai de <span contenteditable="true" class="editable" data-field="delai_depot">quinze (15)</span> jours suivant la signature du présent protocole ;</li>
+                                    <li>Le transfert effectif des apports en nature de Mr. Jad interviendra concomitamment à l'immatriculation de la Newco au Registre du Commerce.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.2.6 Clause d'anti-dilution pour le Fondateur</h4>
+                            <div class="article-content">
+                                <p>En cas d'augmentation de capital de la Newco, Mr. Jad bénéficiera d'une protection anti-dilution selon les modalités suivantes :</p>
+                                <ul class="legal-list">
+                                    <li><strong>Droit préférentiel de souscription :</strong> Mr. Jad disposera d'un droit préférentiel de souscription à toute augmentation de capital, proportionnellement à sa participation ;</li>
+                                    <li><strong>Clause de ratchet « full ratchet » limitée :</strong> En cas d'émission de nouvelles parts à un prix inférieur au prix d'émission initial (100 DH/part), Mr. Jad aura droit à l'attribution gratuite de parts supplémentaires pour maintenir sa participation initiale en pourcentage, dans la limite d'une dilution maximale de <span contenteditable="true" class="editable" data-field="dilution_max">25%</span> de sa participation initiale ;</li>
+                                    <li><strong>Seuil plancher :</strong> En toute hypothèse, la participation de Mr. Jad ne pourra être réduite en-deçà de <span contenteditable="true" class="editable" data-field="seuil_plancher">15%</span> du capital sans son accord exprès.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 1.3 - Propriété Intellectuelle</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">1.3.1 Transfert de la propriété intellectuelle existante</h4>
+                            <div class="article-content">
+                                <p>Mr. Jad s'engage à transférer à la Newco, dès son immatriculation, la pleine et entière propriété de tous les droits de propriété intellectuelle relatifs à la Solution BLAN'LIA STUDIO, incluant notamment :</p>
+                                <ul class="legal-list">
+                                    <li>Les droits d'auteur sur le code source, l'architecture logicielle et la documentation technique ;</li>
+                                    <li>Les droits sur les algorithmes et modèles d'intelligence artificielle ;</li>
+                                    <li>Les droits sur les bases de données ;</li>
+                                    <li>Les droits sur les éléments graphiques et d'interface utilisateur ;</li>
+                                    <li>Les droits sur la marque BLAN'LIA et l'ensemble des signes distinctifs associés ;</li>
+                                    <li>Les droits sur le nom de domaine www.blanlia.ma.</li>
+                                </ul>
+                                <p>Ce transfert sera formalisé par un acte de cession de droits de propriété intellectuelle annexé aux statuts constitutifs de la Newco.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.3.2 Titularité des développements futurs</h4>
+                            <div class="article-content">
+                                <p>Tous les développements, améliorations, extensions et œuvres dérivées créés dans le cadre de l'activité de la Newco seront la propriété exclusive de celle-ci, que ces développements soient réalisés par Mr. Jad, par l'équipe technique de la Newco, ou par des prestataires externes.</p>
+                                <p>Les contrats de travail et les contrats de prestation conclus par la Newco comporteront les clauses nécessaires pour assurer la cession automatique des droits de propriété intellectuelle à la Newco.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.3.3 Protection de la marque BLAN'LIA</h4>
+                            <div class="article-content">
+                                <p>La Newco procédera, dans les <span contenteditable="true" class="editable" data-field="delai_depot_marque">trois (3) mois</span> suivant son immatriculation, au dépôt de la marque « BLAN'LIA » et des signes distinctifs associés auprès de :</p>
+                                <ul class="legal-list">
+                                    <li>L'Office Marocain de la Propriété Industrielle et Commerciale (OMPIC) pour le territoire marocain ;</li>
+                                    <li>L'Organisation Africaine de la Propriété Intellectuelle (OAPI) pour les pays africains francophones ;</li>
+                                    <li>L'Office de l'Union européenne pour la propriété intellectuelle (EUIPO) pour l'Union européenne.</li>
+                                </ul>
+                                <p>Les frais de dépôt et de maintien des marques seront à la charge de la Newco.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.3.4 Clause de non-concurrence et de non-détournement</h4>
+                            <div class="article-content">
+                                <p>Mr. Jad s'engage, pendant toute la durée de son association avec la Newco et pendant une période de <span contenteditable="true" class="editable" data-field="duree_non_concurrence">trois (3) ans</span> suivant sa sortie du capital, à :</p>
+                                <ul class="legal-list">
+                                    <li>Ne pas exercer, directement ou indirectement, une activité concurrente de celle de la Newco dans le domaine des solutions d'IA pour l'architecture et l'immobilier ;</li>
+                                    <li>Ne pas développer, commercialiser ou participer au développement de solutions logicielles similaires ou substituables à BLAN'LIA STUDIO ;</li>
+                                    <li>Ne pas débaucher ou tenter de débaucher les salariés, collaborateurs ou partenaires de la Newco ;</li>
+                                    <li>Ne pas détourner ou tenter de détourner la clientèle de la Newco.</li>
+                                </ul>
+                                <p>Cette obligation de non-concurrence est limitée aux territoires dans lesquels la Newco exerce effectivement son activité.</p>
+                                <p>En contrepartie de cet engagement de non-concurrence post-sortie, Mr. Jad percevra une indemnité égale à <span contenteditable="true" class="editable" data-field="indemnite_non_concurrence">30%</span> de la moyenne de sa rémunération annuelle brute perçue au cours des trois dernières années.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">1.3.5 Procédure de dépôt de brevets et de marques</h4>
+                            <div class="article-content">
+                                <p>La Newco établira une politique de protection de la propriété intellectuelle prévoyant :</p>
+                                <ul class="legal-list">
+                                    <li>Une veille technologique et concurrentielle régulière ;</li>
+                                    <li>L'identification et la protection des innovations brevetables ;</li>
+                                    <li>La mise en place de procédures de confidentialité pour le savoir-faire non brevetable ;</li>
+                                    <li>Un budget annuel dédié à la protection de la propriété intellectuelle.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PARTIE 2 -->
+                <div class="section" id="partie2">
+                    <h2 class="section-title">PARTIE 2 : Gouvernance et Responsabilités</h2>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 2.1 - Organes de Direction</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">2.1.1 Structure de gouvernance</h4>
+                            <div class="article-content">
+                                <p>La gouvernance de la Newco sera organisée comme suit :</p>
+                                <ul class="legal-list">
+                                    <li><strong>Un Gérant :</strong> Mr. Jad, assurant la direction opérationnelle quotidienne et la représentation légale de la société ;</li>
+                                    <li><strong>Un Comité de Direction :</strong> Organe consultatif et décisionnel composé des deux associés, se réunissant régulièrement pour les décisions stratégiques.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.1.2 Nomination et fonctions du Gérant</h4>
+                            <div class="article-content">
+                                <p>Mr. Jad est nommé Gérant de la Newco pour une durée indéterminée. En cette qualité, il exercera les fonctions suivantes :</p>
+                                <ul class="legal-list">
+                                    <li>Représentation légale de la société vis-à-vis des tiers ;</li>
+                                    <li>Image publique et relations avec l'écosystème (presse, événements, communauté) ;</li>
+                                    <li>Direction technique (CTO) : supervision du développement produit et de l'équipe technique ;</li>
+                                    <li>Gestion opérationnelle quotidienne dans le cadre des pouvoirs qui lui sont délégués ;</li>
+                                    <li>Mise en œuvre des décisions du Comité de Direction et de l'Assemblée des Associés.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.1.3 Comité de Direction</h4>
+                            <div class="article-content">
+                                <p>Le Comité de Direction sera composé de :</p>
+                                <ul class="legal-list">
+                                    <li>Mr. Jad, en qualité de Gérant ;</li>
+                                    <li>M. Karim EL-FEKKAK, représentant KEF Ventures.</li>
+                                </ul>
+                                <p>Le Comité de Direction se réunira au minimum <span contenteditable="true" class="editable" data-field="frequence_comite">une fois par mois</span>, et en tout état de cause chaque fois que l'un des membres le demandera. Les décisions seront prises à l'unanimité.</p>
+                                <p>Le Comité de Direction aura compétence pour :</p>
+                                <ul class="legal-list">
+                                    <li>Définir la stratégie générale de la société ;</li>
+                                    <li>Approuver le budget annuel et le plan de développement ;</li>
+                                    <li>Valider les investissements significatifs ;</li>
+                                    <li>Décider des recrutements clés ;</li>
+                                    <li>Superviser les relations avec les investisseurs ;</li>
+                                    <li>Toute autre décision excédant les pouvoirs du Gérant.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.1.4 Limitations statutaires des pouvoirs du Gérant</h4>
+                            <div class="article-content">
+                                <p>Sans préjudice des pouvoirs reconnus au Gérant par la loi, les décisions suivantes nécessiteront l'accord préalable du Comité de Direction :</p>
+                                <ul class="legal-list">
+                                    <li>Tout engagement financier supérieur à <span contenteditable="true" class="editable" data-field="seuil_engagement">cinquante mille dirhams (50.000 DH)</span> ;</li>
+                                    <li>Conclusion, modification ou résiliation de tout contrat significatif ;</li>
+                                    <li>Embauche ou licenciement de cadres dirigeants ;</li>
+                                    <li>Ouverture de filiales ou établissements ;</li>
+                                    <li>Acquisition ou cession d'actifs significatifs ;</li>
+                                    <li>Conclusion d'emprunts ou octroi de garanties ;</li>
+                                    <li>Modification de la politique tarifaire ;</li>
+                                    <li>Conclusion de partenariats stratégiques.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.1.5 Décisions de l'Assemblée des Associés</h4>
+                            <div class="article-content">
+                                <p>Relèvent de la compétence exclusive de l'Assemblée des Associés, statuant dans les conditions de majorité prévues par la loi :</p>
+                                <ul class="legal-list">
+                                    <li>L'approbation des comptes annuels et l'affectation des résultats ;</li>
+                                    <li>La nomination et la révocation du Gérant ;</li>
+                                    <li>Les modifications statutaires ;</li>
+                                    <li>Les augmentations et réductions de capital ;</li>
+                                    <li>La transformation de la société ;</li>
+                                    <li>La dissolution anticipée et la liquidation ;</li>
+                                    <li>Les opérations de fusion, scission ou apport partiel d'actif.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 2.2 - Responsabilités Opérationnelles Détaillées</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">2.2.1 Périmètre de Mr. Jad (Associé Technique - Gérant/CTO)</h4>
+                            <div class="article-content">
+                                <p>Mr. Jad assumera les responsabilités suivantes :</p>
+                                
+                                <p><strong>A. Développement et maintenance de la plateforme</strong></p>
+                                <ul class="legal-list">
+                                    <li>Architecture technique et choix technologiques ;</li>
+                                    <li>Développement des nouvelles fonctionnalités ;</li>
+                                    <li>Maintenance corrective et évolutive ;</li>
+                                    <li>Gestion de l'infrastructure technique (serveurs, bases de données, sécurité) ;</li>
+                                    <li>Optimisation des performances et de la scalabilité.</li>
+                                </ul>
+                                
+                                <p><strong>B. Roadmap produit et innovations</strong></p>
+                                <ul class="legal-list">
+                                    <li>Définition de la feuille de route technique en concertation avec le Comité de Direction ;</li>
+                                    <li>Veille technologique et identification des innovations à intégrer ;</li>
+                                    <li>Amélioration continue des algorithmes d'IA ;</li>
+                                    <li>Coordination avec les utilisateurs pour le recueil des besoins.</li>
+                                </ul>
+                                
+                                <p><strong>C. Management de l'équipe technique</strong></p>
+                                <ul class="legal-list">
+                                    <li>Recrutement des développeurs et ingénieurs ;</li>
+                                    <li>Organisation et management de l'équipe technique ;</li>
+                                    <li>Formation et montée en compétences ;</li>
+                                    <li>Évaluation des performances.</li>
+                                </ul>
+                                
+                                <p><strong>D. Support technique et qualité</strong></p>
+                                <ul class="legal-list">
+                                    <li>Supervision du support technique utilisateurs ;</li>
+                                    <li>Gestion des incidents et des bugs ;</li>
+                                    <li>Mise en place des processus qualité ;</li>
+                                    <li>Documentation technique.</li>
+                                </ul>
+                                
+                                <p><strong>E. KPIs techniques</strong></p>
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Indicateur</th>
+                                            <th>Objectif</th>
+                                            <th>Fréquence de suivi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Disponibilité plateforme (uptime)</td>
+                                            <td>≥ 99,5%</td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Temps de réponse moyen</td>
+                                            <td>< 3 secondes</td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Délai moyen de résolution bugs critiques</td>
+                                            <td>< 24 heures</td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Taux de satisfaction technique (NPS)</td>
+                                            <td>≥ 40</td>
+                                            <td>Trimestrielle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Livraison des fonctionnalités planifiées</td>
+                                            <td>≥ 80%</td>
+                                            <td>Trimestrielle</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.2.2 Périmètre de KEF Ventures (Associé Investisseur - Vision stratégique)</h4>
+                            <div class="article-content">
+                                <p>KEF Ventures, représentée par M. Karim EL-FEKKAK, assumera les responsabilités suivantes :</p>
+                                
+                                <p><strong>A. Stratégie commerciale et business development</strong></p>
+                                <ul class="legal-list">
+                                    <li>Définition de la stratégie commerciale ;</li>
+                                    <li>Identification et développement des marchés cibles ;</li>
+                                    <li>Négociation des partenariats commerciaux majeurs ;</li>
+                                    <li>Développement du réseau de distribution.</li>
+                                </ul>
+                                
+                                <p><strong>B. Gestion financière et reporting</strong></p>
+                                <ul class="legal-list">
+                                    <li>Supervision de la comptabilité et de la gestion financière ;</li>
+                                    <li>Élaboration des budgets et plans financiers ;</li>
+                                    <li>Suivi de la trésorerie et de la rentabilité ;</li>
+                                    <li>Reporting financier aux associés.</li>
+                                </ul>
+                                
+                                <p><strong>C. Relations investisseurs et levées de fonds</strong></p>
+                                <ul class="legal-list">
+                                    <li>Identification des investisseurs potentiels ;</li>
+                                    <li>Préparation des dossiers de levée de fonds ;</li>
+                                    <li>Négociation avec les investisseurs ;</li>
+                                    <li>Relations avec les fonds d'investissement et institutions.</li>
+                                </ul>
+                                
+                                <p><strong>D. Partenariats stratégiques</strong></p>
+                                <ul class="legal-list">
+                                    <li>Identification des partenaires stratégiques (éditeurs de logiciels, institutions, etc.) ;</li>
+                                    <li>Négociation et structuration des partenariats ;</li>
+                                    <li>Suivi des relations partenariales.</li>
+                                </ul>
+                                
+                                <p><strong>E. Marketing et communication</strong></p>
+                                <ul class="legal-list">
+                                    <li>Définition de la stratégie marketing ;</li>
+                                    <li>Supervision des campagnes marketing digitales ;</li>
+                                    <li>Relations presse et communication institutionnelle ;</li>
+                                    <li>Gestion de la marque et de l'image de la société.</li>
+                                </ul>
+                                
+                                <p><strong>F. KPIs business</strong></p>
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Indicateur</th>
+                                            <th>Objectif Année 1</th>
+                                            <th>Fréquence de suivi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Revenu Récurrent Mensuel (MRR)</td>
+                                            <td><span contenteditable="true" class="editable" data-field="mrr_y1">50.000 DH</span></td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nombre de clients payants</td>
+                                            <td><span contenteditable="true" class="editable" data-field="clients_y1">300</span></td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Coût d'acquisition client (CAC)</td>
+                                            <td><span contenteditable="true" class="editable" data-field="cac_y1">< 200 DH</span></td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Taux de rétention mensuel</td>
+                                            <td>≥ 90%</td>
+                                            <td>Mensuelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ratio LTV/CAC</td>
+                                            <td>≥ 3</td>
+                                            <td>Trimestrielle</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 2.3 - Engagements des Associés</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">2.3.1 Clause d'exclusivité</h4>
+                            <div class="article-content">
+                                <p>Mr. Jad s'engage à consacrer l'intégralité de son temps de travail professionnel à la Newco et à exercer ses fonctions de Gérant et de CTO à <strong>temps plein</strong>.</p>
+                                <p>M. Karim EL-FEKKAK, agissant pour le compte de KEF Ventures, s'engage à consacrer le temps nécessaire à l'exercice de ses responsabilités stratégiques, estimé à un minimum de <span contenteditable="true" class="editable" data-field="temps_kef">deux (2) jours</span> par semaine.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.3.2 Engagement de confidentialité</h4>
+                            <div class="article-content">
+                                <p>Les Parties s'engagent, pendant toute la durée de leur association et pendant une période de <span contenteditable="true" class="editable" data-field="duree_confidentialite">cinq (5) ans</span> après leur sortie du capital, à maintenir strictement confidentielles toutes les informations relatives à :</p>
+                                <ul class="legal-list">
+                                    <li>La technologie, le code source et le savoir-faire de la Newco ;</li>
+                                    <li>Les données clients et les informations commerciales ;</li>
+                                    <li>Les conditions financières et les projections ;</li>
+                                    <li>Les négociations avec les investisseurs et partenaires ;</li>
+                                    <li>Toute information désignée comme confidentielle par la Newco.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">2.3.3 Clause de non-débauchage</h4>
+                            <div class="article-content">
+                                <p>Pendant toute la durée de leur association et pendant une période de <span contenteditable="true" class="editable" data-field="duree_non_debauchage">deux (2) ans</span> suivant leur sortie du capital, les Parties s'interdisent de :</p>
+                                <ul class="legal-list">
+                                    <li>Recruter ou tenter de recruter, directement ou indirectement, tout salarié ou collaborateur de la Newco ;</li>
+                                    <li>Inciter tout salarié ou collaborateur à quitter la Newco ;</li>
+                                    <li>Proposer à tout prestataire de la Newco des conditions plus avantageuses pour les détourner.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PARTIE 3 -->
+                <div class="section" id="partie3">
+                    <h2 class="section-title">PARTIE 3 : Pacte d'Associés - Dispositions Essentielles</h2>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 3.1 - Droits de Vote et Majorités</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">3.1.1 Principe général</h4>
+                            <div class="article-content">
+                                <p>Chaque part sociale donne droit à une voix. Les décisions collectives sont prises en assemblée des associés ou par consultation écrite.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.1.2 Droit de veto de KEF Ventures</h4>
+                            <div class="article-content">
+                                <p>Nonobstant les règles de majorité légales ou statutaires, KEF Ventures disposera d'un droit de veto sur les décisions suivantes :</p>
+                                <ul class="legal-list">
+                                    <li>Modification de l'objet social ou de la dénomination ;</li>
+                                    <li>Augmentation ou réduction de capital ;</li>
+                                    <li>Émission de valeurs mobilières ;</li>
+                                    <li>Opérations de fusion, scission, apport partiel d'actif ;</li>
+                                    <li>Cession d'actifs significatifs (valeur > 100.000 DH) ;</li>
+                                    <li>Modification de la politique de rémunération des dirigeants ;</li>
+                                    <li>Conclusion d'engagements hors bilan significatifs ;</li>
+                                    <li>Changement de Gérant ;</li>
+                                    <li>Distribution de dividendes.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.1.3 Mécanisme de résolution des blocages (Deadlock)</h4>
+                            <div class="article-content">
+                                <p>En cas de désaccord persistant entre les associés sur une décision nécessitant l'unanimité ou soumise au droit de veto, les Parties conviennent d'appliquer la procédure suivante :</p>
+                                <ul class="legal-list legal-list-alpha">
+                                    <li><strong>Phase de négociation (30 jours) :</strong> Les associés se réuniront pour tenter de trouver un accord amiable ;</li>
+                                    <li><strong>Phase de médiation (30 jours) :</strong> À défaut d'accord, les associés désigneront conjointement un médiateur indépendant ;</li>
+                                    <li><strong>Phase d'arbitrage :</strong> En l'absence de solution, le litige sera soumis à un arbitre unique désigné d'un commun accord ou, à défaut, par le Président du Tribunal de Commerce de <span contenteditable="true" class="editable" data-field="ville_tribunal">Casablanca</span> ;</li>
+                                    <li><strong>Option de sortie :</strong> En dernier recours, chaque associé pourra proposer de racheter les parts de l'autre selon la procédure dite du « Texas Shoot-Out » (offre simultanée d'achat/vente au même prix).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 3.2 - Clauses de Cession et Sortie</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">3.2.1 Rappel des dispositions légales</h4>
+                            <div class="article-content">
+                                <p>Conformément aux articles 58 et suivants de la loi 5-96, les cessions de parts sociales sont soumises aux règles suivantes :</p>
+                                <ul class="legal-list">
+                                    <li><strong>Cessions entre associés :</strong> Libres, sauf stipulation contraire des statuts ;</li>
+                                    <li><strong>Cessions à des tiers étrangers :</strong> Soumises à l'agrément de la majorité des associés représentant au moins les trois quarts des parts sociales.</li>
+                                </ul>
+                                <p>Les statuts de la Newco prévoiront en outre un <strong>droit de préemption</strong> au bénéfice des associés en cas de projet de cession à un tiers.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.2.2 Clause d'entraînement (Drag-Along)</h4>
+                            <div class="article-content">
+                                <p>En cas de projet de cession de la totalité des parts sociales de la Newco à un tiers acquéreur, représentant une opportunité de sortie valorisant la société à un minimum de <span contenteditable="true" class="editable" data-field="seuil_drag">cinq millions de dirhams (5.000.000 DH)</span>, l'associé majoritaire pourra contraindre l'associé minoritaire à céder l'intégralité de ses parts aux mêmes conditions et au même prix.</p>
+                                <p>Cette clause ne pourra être mise en œuvre qu'après un délai minimum de <span contenteditable="true" class="editable" data-field="delai_drag">trois (3) ans</span> à compter de la constitution de la Newco.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.2.3 Clause de sortie prioritaire (Liquidation Preference)</h4>
+                            <div class="article-content">
+                                <p>En cas de cession de la totalité des parts de la Newco ou de liquidation de celle-ci, KEF Ventures bénéficiera d'une préférence de liquidation lui permettant de récupérer en priorité :</p>
+                                <ul class="legal-list">
+                                    <li>Le montant de son apport initial (60.000 DH) ;</li>
+                                    <li>Majoré d'un rendement annuel de <span contenteditable="true" class="editable" data-field="rendement_preference">8%</span> capitalisé.</li>
+                                </ul>
+                                <p>Le solde du prix de cession ou du boni de liquidation sera ensuite réparti entre les associés au prorata de leur participation.</p>
+                                <p>Cette clause de liquidation préférentielle est de type « non-participating », ce qui signifie que KEF Ventures devra choisir entre bénéficier de sa préférence ou participer à la répartition au prorata, mais ne pourra pas cumuler les deux.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.2.4 Méthodes de valorisation en cas de cession</h4>
+                            <div class="article-content">
+                                <p>En l'absence d'accord entre les associés sur le prix de cession, la valeur des parts sera déterminée par un expert indépendant selon les méthodes suivantes, appliquées conjointement :</p>
+                                <ul class="legal-list">
+                                    <li><strong>Multiple de revenus récurrents :</strong> Application d'un multiple de <span contenteditable="true" class="editable" data-field="multiple_arr">5x à 8x</span> l'ARR (Annual Recurring Revenue) ;</li>
+                                    <li><strong>DCF (Discounted Cash Flow) :</strong> Actualisation des flux de trésorerie prévisionnels sur 5 ans avec un taux d'actualisation de <span contenteditable="true" class="editable" data-field="taux_dcf">15% à 20%</span> ;</li>
+                                    <li><strong>Comparables de marché :</strong> Analyse des transactions récentes dans le secteur des startups SaaS au Maroc et en Afrique.</li>
+                                </ul>
+                                <p>La valeur retenue sera la moyenne arithmétique des trois méthodes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 3.3 - Clauses Spécifiques Startup</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">3.3.1 Clause de vesting pour le Fondateur</h4>
+                            <div class="article-content">
+                                <p>Les 400 parts sociales attribuées à Mr. Jad seront soumises à un mécanisme de vesting selon les modalités suivantes :</p>
+                                <ul class="legal-list">
+                                    <li><strong>Durée totale de vesting :</strong> 4 ans ;</li>
+                                    <li><strong>Cliff :</strong> 1 an (aucune part n'est acquise avant le premier anniversaire) ;</li>
+                                    <li><strong>Acquisition progressive :</strong> 25% des parts (100 parts) acquises à l'issue de la première année, puis acquisition mensuelle de 1/36ème des parts restantes ;</li>
+                                    <li><strong>Accélération :</strong> En cas de cession de la Newco ou de changement de contrôle, l'intégralité des parts non encore acquises sera immédiatement acquise (« single trigger acceleration »).</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.3.2 Stock-options pour les employés clés</h4>
+                            <div class="article-content">
+                                <p>La Newco pourra mettre en place un plan d'intéressement au capital pour ses salariés clés, dans la limite de <span contenteditable="true" class="editable" data-field="pool_esop">10%</span> du capital social. Ce pool sera alimenté par une augmentation de capital réservée, les Parties s'engageant à voter en faveur d'une telle augmentation.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.3.3 Clause de good leaver / bad leaver</h4>
+                            <div class="article-content">
+                                <p>En cas de départ de Mr. Jad de la Newco, les conditions de rachat de ses parts non encore acquises (« unvested ») dépendront des circonstances du départ :</p>
+                                
+                                <p><strong>Good Leaver (départ justifié) :</strong></p>
+                                <ul class="legal-list">
+                                    <li>Décès ou incapacité permanente ;</li>
+                                    <li>Licenciement sans faute grave ;</li>
+                                    <li>Démission pour motif légitime (défaut de paiement de la rémunération, modification substantielle des fonctions, etc.).</li>
+                                </ul>
+                                <p>→ Les parts non acquises seront rachetées à leur valeur de marché déterminée selon les méthodes de l'article 3.2.4.</p>
+                                
+                                <p><strong>Bad Leaver (départ fautif) :</strong></p>
+                                <ul class="legal-list">
+                                    <li>Révocation pour faute grave ou lourde ;</li>
+                                    <li>Démission sans motif légitime avant l'expiration du vesting ;</li>
+                                    <li>Violation des clauses de non-concurrence ou de confidentialité.</li>
+                                </ul>
+                                <p>→ Les parts non acquises seront rachetées à leur valeur nominale (100 DH/part).</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.3.4 Clause de ratchet anti-dilution</h4>
+                            <div class="article-content">
+                                <p>Cette clause est détaillée à l'article 1.2.6 ci-dessus.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 3.4 - Sortie et Dissolution</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">3.4.1 Conditions de sortie anticipée</h4>
+                            <div class="article-content">
+                                <p>Tout associé souhaitant céder ses parts devra respecter un délai de préavis de <span contenteditable="true" class="editable" data-field="preavis_sortie">six (6) mois</span> et proposer ses parts en priorité à l'autre associé (droit de préemption).</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.4.2 Mécanisme de rachat forcé</h4>
+                            <div class="article-content">
+                                <p>En cas de manquement grave par l'un des associés à ses obligations au titre du présent protocole ou des statuts, l'autre associé pourra exiger le rachat forcé des parts de l'associé défaillant à leur valeur nominale, après mise en demeure restée sans effet pendant <span contenteditable="true" class="editable" data-field="delai_mise_demeure">trente (30) jours</span>.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.4.3 Procédure de dissolution amiable</h4>
+                            <div class="article-content">
+                                <p>Les associés pourront décider à l'unanimité la dissolution anticipée de la Newco. Dans cette hypothèse, ils s'engagent à nommer un liquidateur amiable et à procéder à la réalisation ordonnée des actifs dans le respect des intérêts de toutes les parties prenantes.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">3.4.4 Clause de buy-out en cas de mésentente</h4>
+                            <div class="article-content">
+                                <p>En cas de mésentente grave et durable entre les associés rendant impossible le fonctionnement normal de la société, et après échec de la procédure de deadlock prévue à l'article 3.1.3, chaque associé pourra mettre en œuvre la procédure de « Russian Roulette » suivante :</p>
+                                <ul class="legal-list">
+                                    <li>L'associé initiateur adresse à l'autre une offre d'achat de la totalité de ses parts à un prix déterminé ;</li>
+                                    <li>L'associé destinataire dispose de <span contenteditable="true" class="editable" data-field="delai_russian">trente (30) jours</span> pour soit accepter de vendre ses parts à ce prix, soit proposer de racheter les parts de l'initiateur au même prix ;</li>
+                                    <li>L'opération devra être réalisée dans un délai de <span contenteditable="true" class="editable" data-field="delai_realisation_russian">soixante (60) jours</span> suivant la décision.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PARTIE 4 -->
+                <div class="section" id="partie4">
+                    <h2 class="section-title">PARTIE 4 : Plan d'Action Stratégique de la Newco</h2>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 4.1 - Levée de Fonds - Stratégie Maroc Digital 2030</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">4.1.1 Identification des fonds éligibles</h4>
+                            <div class="article-content">
+                                <p>La Newco sollicitera les dispositifs de financement suivants, alignés avec la stratégie Maroc Digital 2030 :</p>
+                                
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Dispositif</th>
+                                            <th>Montant cible</th>
+                                            <th>Échéance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Fonds Innov Invest</strong> (CCG)</td>
+                                            <td><span contenteditable="true" class="editable" data-field="montant_innov">500.000 - 2.000.000 DH</span></td>
+                                            <td>M6 - M12</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Programme 212 Founders</strong></td>
+                                            <td><span contenteditable="true" class="editable" data-field="montant_212">1.000.000 - 3.000.000 DH</span></td>
+                                            <td>M9 - M18</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Maroc Numeric Fund II</strong></td>
+                                            <td><span contenteditable="true" class="editable" data-field="montant_mnf">2.000.000 - 5.000.000 DH</span></td>
+                                            <td>M12 - M24</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>ADD - Subventions R&D</strong></td>
+                                            <td><span contenteditable="true" class="editable" data-field="montant_add">200.000 - 500.000 DH</span></td>
+                                            <td>M3 - M12</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.1.2 Calendrier de levée de fonds</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Phase</th>
+                                            <th>Période</th>
+                                            <th>Montant cible</th>
+                                            <th>Valorisation pré-money</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Pre-Seed</strong> (constitution)</td>
+                                            <td>M0</td>
+                                            <td>100.000 DH</td>
+                                            <td>N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Seed</strong></td>
+                                            <td>M6 - M12</td>
+                                            <td><span contenteditable="true" class="editable" data-field="seed_montant">1.500.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="seed_valo">3.000.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Série A</strong></td>
+                                            <td>M18 - M24</td>
+                                            <td><span contenteditable="true" class="editable" data-field="seriea_montant">5.000.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="seriea_valo">15.000.000 DH</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.1.3 Documents à préparer</h4>
+                            <div class="article-content">
+                                <ul class="legal-list">
+                                    <li>Pitch Deck (15-20 slides) - Responsable : KEF Ventures - Échéance : M1</li>
+                                    <li>Business Plan détaillé (5 ans) - Responsable : KEF Ventures - Échéance : M2</li>
+                                    <li>Modèle financier et projections - Responsable : KEF Ventures - Échéance : M2</li>
+                                    <li>Data Room virtuelle - Responsable : Conjoint - Échéance : M3</li>
+                                    <li>Executive Summary - Responsable : KEF Ventures - Échéance : M1</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 4.2 - Stratégie Marketing Digital</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">4.2.1 Budget marketing par phase</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Phase</th>
+                                            <th>Période</th>
+                                            <th>Budget mensuel</th>
+                                            <th>Focus principal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Lancement</td>
+                                            <td>M1 - M6</td>
+                                            <td><span contenteditable="true" class="editable" data-field="budget_m1">10.000 DH</span></td>
+                                            <td>Notoriété, SEO fondations</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Croissance</td>
+                                            <td>M7 - M12</td>
+                                            <td><span contenteditable="true" class="editable" data-field="budget_m7">25.000 DH</span></td>
+                                            <td>Acquisition, conversion</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Accélération</td>
+                                            <td>M13 - M24</td>
+                                            <td><span contenteditable="true" class="editable" data-field="budget_m13">50.000 DH</span></td>
+                                            <td>Scale, international</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.2.2 Canaux prioritaires</h4>
+                            <div class="article-content">
+                                <p><strong>SEO/SEA :</strong></p>
+                                <ul class="legal-list">
+                                    <li>Optimisation du site pour les mots-clés « rendu 3D architecture Maroc », « plan 2D en 3D », « IA architecture » ;</li>
+                                    <li>Campagnes Google Ads ciblées sur les architectes et étudiants ;</li>
+                                    <li>Retargeting des visiteurs du site.</li>
+                                </ul>
+                                
+                                <p><strong>Social Media :</strong></p>
+                                <ul class="legal-list">
+                                    <li>LinkedIn : Contenus B2B, thought leadership, témoignages clients ;</li>
+                                    <li>Instagram : Portfolio visuel, before/after, stories ;</li>
+                                    <li>TikTok : Tutoriels courts, démonstrations virales ;</li>
+                                    <li>Facebook : Groupes d'architectes, publicités ciblées.</li>
+                                </ul>
+                                
+                                <p><strong>Content Marketing :</strong></p>
+                                <ul class="legal-list">
+                                    <li>Blog technique : Tutoriels, études de cas, tendances ;</li>
+                                    <li>Webinaires mensuels avec des architectes invités ;</li>
+                                    <li>Newsletter bi-mensuelle.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.2.3 KPIs marketing</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Indicateur</th>
+                                            <th>Objectif M6</th>
+                                            <th>Objectif M12</th>
+                                            <th>Objectif M24</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Visiteurs uniques/mois</td>
+                                            <td>5.000</td>
+                                            <td>15.000</td>
+                                            <td>50.000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Taux de conversion (visiteur → trial)</td>
+                                            <td>3%</td>
+                                            <td>5%</td>
+                                            <td>7%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>CAC (Coût d'Acquisition Client)</td>
+                                            <td>300 DH</td>
+                                            <td>200 DH</td>
+                                            <td>150 DH</td>
+                                        </tr>
+                                        <tr>
+                                            <td>LTV (Lifetime Value)</td>
+                                            <td>1.500 DH</td>
+                                            <td>2.000 DH</td>
+                                            <td>3.000 DH</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.2.4 Partenariats avec les écoles d'architecture</h4>
+                            <div class="article-content">
+                                <p>La Newco développera des partenariats avec les principales écoles d'architecture marocaines :</p>
+                                <ul class="legal-list">
+                                    <li>École Nationale d'Architecture (ENA) - Rabat</li>
+                                    <li>École d'Architecture de Casablanca</li>
+                                    <li>École d'Architecture de Marrakech</li>
+                                    <li>Universités privées proposant des cursus d'architecture</li>
+                                </ul>
+                                <p><strong>Offres spéciales étudiants :</strong> Tarif réduit de <span contenteditable="true" class="editable" data-field="tarif_etudiant">99 DH/mois</span> sur présentation de la carte étudiante.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 4.3 - Promotion Commerciale B2B</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">4.3.1 Segments cibles</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Segment</th>
+                                            <th>Taille du marché (Maroc)</th>
+                                            <th>Priorité</th>
+                                            <th>Approche</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Cabinets d'architecture</td>
+                                            <td>~2.500</td>
+                                            <td>Haute</td>
+                                            <td>Démarchage direct, démos</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Promoteurs immobiliers</td>
+                                            <td>~500</td>
+                                            <td>Haute</td>
+                                            <td>Account-based marketing</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Agences immobilières</td>
+                                            <td>~5.000</td>
+                                            <td>Moyenne</td>
+                                            <td>Partenariats, affiliation</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bureaux d'études</td>
+                                            <td>~1.000</td>
+                                            <td>Moyenne</td>
+                                            <td>Intégrations techniques</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Étudiants en architecture</td>
+                                            <td>~10.000</td>
+                                            <td>Haute</td>
+                                            <td>Freemium, campus</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.3.2 Stratégie de pricing</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Offre</th>
+                                            <th>Prix mensuel</th>
+                                            <th>Fonctionnalités</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Freemium</strong></td>
+                                            <td>Gratuit</td>
+                                            <td>5 rendus/mois, watermark, résolution standard</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Pro</strong></td>
+                                            <td>189 DH</td>
+                                            <td>50 rendus/mois, HD, sans watermark, support email</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Business</strong></td>
+                                            <td>489 DH</td>
+                                            <td>Illimité, 4K, API, support prioritaire, collaboration</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Enterprise</strong></td>
+                                            <td>Sur devis</td>
+                                            <td>White-label, intégrations custom, SLA, account manager</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 4.4 - R&D et Amélioration Produit</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">4.4.1 Enquêtes clients professionnelles</h4>
+                            <div class="article-content">
+                                <p><strong>Plateformes recommandées :</strong></p>
+                                <ul class="legal-list">
+                                    <li><strong>Respondent.io :</strong> Recrutement de professionnels pour interviews qualitatives ;</li>
+                                    <li><strong>UserTesting :</strong> Tests utilisateurs à distance ;</li>
+                                    <li><strong>Hotjar :</strong> Heatmaps et enregistrements de sessions ;</li>
+                                    <li><strong>Typeform :</strong> Enquêtes de satisfaction et NPS.</li>
+                                </ul>
+                                
+                                <p><strong>Méthodologie d'interviews utilisateurs :</strong></p>
+                                <ul class="legal-list">
+                                    <li>Interviews qualitatives mensuelles (5-10 utilisateurs) ;</li>
+                                    <li>Enquêtes quantitatives trimestrielles ;</li>
+                                    <li>Analyse continue des données d'usage (analytics produit) ;</li>
+                                    <li>Beta-testing des nouvelles fonctionnalités avec un panel d'utilisateurs pilotes.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.4.2 Roadmap fonctionnelle prioritaire</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Fonctionnalité</th>
+                                            <th>Priorité</th>
+                                            <th>Échéance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Amélioration qualité rendus HD</td>
+                                            <td>P0</td>
+                                            <td>M3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mode collaboration temps réel</td>
+                                            <td>P1</td>
+                                            <td>M6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Intégration AutoCAD/SketchUp</td>
+                                            <td>P1</td>
+                                            <td>M9</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Application mobile</td>
+                                            <td>P2</td>
+                                            <td>M12</td>
+                                        </tr>
+                                        <tr>
+                                            <td>API publique</td>
+                                            <td>P1</td>
+                                            <td>M6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Génération de métrés automatique</td>
+                                            <td>P2</td>
+                                            <td>M18</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.4.3 Conformité RGPD et hébergement des données</h4>
+                            <div class="article-content">
+                                <p>La Newco s'engage à :</p>
+                                <ul class="legal-list">
+                                    <li>Mettre en conformité l'ensemble de ses traitements avec le RGPD et la loi marocaine 09-08 ;</li>
+                                    <li>Désigner un Délégué à la Protection des Données (DPO) ;</li>
+                                    <li>Héberger les données des clients européens sur des serveurs situés en Europe ;</li>
+                                    <li>Mettre en place des procédures de sécurité des données conformes aux standards ISO 27001.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 4.5 - Expansion Internationale</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">4.5.1 Marchés prioritaires</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Phase</th>
+                                            <th>Marchés</th>
+                                            <th>Période</th>
+                                            <th>Investissement estimé</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Phase 1</strong></td>
+                                            <td>Sénégal, Côte d'Ivoire, Tunisie</td>
+                                            <td>M12 - M18</td>
+                                            <td><span contenteditable="true" class="editable" data-field="invest_phase1">500.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Phase 2</strong></td>
+                                            <td>EAU, Arabie Saoudite</td>
+                                            <td>M18 - M30</td>
+                                            <td><span contenteditable="true" class="editable" data-field="invest_phase2">1.500.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Phase 3</strong></td>
+                                            <td>France, Belgique</td>
+                                            <td>M24 - M36</td>
+                                            <td><span contenteditable="true" class="editable" data-field="invest_phase3">2.000.000 DH</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">4.5.2 Adaptation produit</h4>
+                            <div class="article-content">
+                                <ul class="legal-list">
+                                    <li><strong>Langues :</strong> Français (actuel), Arabe (M6), Anglais (M9) ;</li>
+                                    <li><strong>Devises :</strong> MAD, EUR, USD, XOF, AED ;</li>
+                                    <li><strong>Réglementations :</strong> Conformité aux normes locales de construction et d'architecture.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PARTIE 5 -->
+                <div class="section" id="partie5">
+                    <h2 class="section-title">PARTIE 5 : Dispositions Financières</h2>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 5.1 - Plan de Financement Initial</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">5.1.1 Besoins de financement</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Poste</th>
+                                            <th>6 premiers mois</th>
+                                            <th>12 premiers mois</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Développement produit</td>
+                                            <td><span contenteditable="true" class="editable" data-field="dev_6m">30.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="dev_12m">80.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Infrastructure technique</td>
+                                            <td><span contenteditable="true" class="editable" data-field="infra_6m">15.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="infra_12m">40.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Marketing & commercial</td>
+                                            <td><span contenteditable="true" class="editable" data-field="mkt_6m">40.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="mkt_12m">150.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Frais généraux</td>
+                                            <td><span contenteditable="true" class="editable" data-field="fg_6m">10.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="fg_12m">30.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Trésorerie de sécurité</td>
+                                            <td><span contenteditable="true" class="editable" data-field="treso_6m">5.000 DH</span></td>
+                                            <td><span contenteditable="true" class="editable" data-field="treso_12m">20.000 DH</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>TOTAL</strong></td>
+                                            <td><strong>100.000 DH</strong></td>
+                                            <td><strong>320.000 DH</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">5.1.2 Table de capitalisation prévisionnelle</h4>
+                            <div class="article-content">
+                                <table class="legal-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Étape</th>
+                                            <th>Mr. Jad</th>
+                                            <th>KEF Ventures</th>
+                                            <th>Investisseurs Seed</th>
+                                            <th>ESOP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Constitution</td>
+                                            <td>40%</td>
+                                            <td>60%</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Post-Seed</td>
+                                            <td>32%</td>
+                                            <td>48%</td>
+                                            <td>15%</td>
+                                            <td>5%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Post-Série A</td>
+                                            <td>25%</td>
+                                            <td>38%</td>
+                                            <td>12%</td>
+                                            <td>10%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p><em>* Ces projections sont indicatives et seront ajustées en fonction des conditions de marché et des négociations avec les investisseurs.</em></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 5.2 - Politique de Distribution</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">5.2.1 Règles de distribution des dividendes</h4>
+                            <div class="article-content">
+                                <p>Compte tenu du stade de développement de la Newco et de ses besoins de financement, les Parties conviennent que :</p>
+                                <ul class="legal-list">
+                                    <li>Aucun dividende ne sera distribué pendant les <span contenteditable="true" class="editable" data-field="moratoire_dividendes">trois (3) premières années</span> suivant la constitution ;</li>
+                                    <li>Au-delà de cette période, la distribution de dividendes sera subordonnée à l'atteinte d'un résultat net positif et d'une trésorerie suffisante ;</li>
+                                    <li>Le taux de distribution ne pourra excéder <span contenteditable="true" class="editable" data-field="taux_distribution">30%</span> du résultat net distribuable.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">5.2.2 Réserves obligatoires</h4>
+                            <div class="article-content">
+                                <p>Outre la réserve légale de 5% prévue par la loi, les Parties conviennent de constituer une réserve de développement alimentée à hauteur de <span contenteditable="true" class="editable" data-field="reserve_dev">20%</span> du résultat net annuel jusqu'à atteindre un montant égal au capital social.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3 class="subsection-title">Article 5.3 - Rémunération des Dirigeants</h3>
+                        
+                        <div class="article">
+                            <h4 class="article-title">5.3.1 Rémunération du Gérant</h4>
+                            <div class="article-content">
+                                <p>Mr. Jad percevra, en sa qualité de Gérant, une rémunération fixe mensuelle de <span contenteditable="true" class="editable" data-field="remun_gerant">quinze mille dirhams (15.000 DH)</span> bruts.</p>
+                                <p>Cette rémunération sera révisée annuellement par le Comité de Direction en fonction des résultats de la société et de l'atteinte des objectifs.</p>
+                            </div>
+                        </div>
+
+                        <div class="article">
+                            <h4 class="article-title">5.3.2 Système de bonus sur objectifs</h4>
+                            <div class="article-content">
+                                <p>Un bonus annuel pourra être attribué au Gérant en fonction de l'atteinte des objectifs suivants :</p>
+                                <ul class="legal-list">
+                                    <li>Objectifs de chiffre d'affaires : <span contenteditable="true" class="editable" data-field="bonus_ca">30%</span> du bonus potentiel ;</li>
+                                    <li>Objectifs de croissance utilisateurs : <span contenteditable="true" class="editable" data-field="bonus_users">30%</span> du bonus potentiel ;</li>
+                                    <li>Objectifs techniques (uptime, satisfaction) : <span contenteditable="true" class="editable" data-field="bonus_tech">20%</span> du bonus potentiel ;</li>
+                                    <li>Objectifs qualitatifs (à définir annuellement) : <span contenteditable="true" class="editable" data-field="bonus_quali">20%</span> du bonus potentiel.</li>
+                                </ul>
+                                <p>Le bonus maximal est fixé à <span contenteditable="true" class="editable" data-field="bonus_max">trois (3) mois</span> de rémunération fixe.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DISPOSITIONS FINALES -->
+                <div class="section" id="dispositions_finales">
+                    <h2 class="section-title">Dispositions Finales</h2>
+                    
+                    <div class="article">
+                        <h4 class="article-title">Article 6.1 - Entrée en vigueur</h4>
+                        <div class="article-content">
+                            <p>Le présent protocole entre en vigueur à compter de sa signature par les deux Parties. Il lie les Parties jusqu'à l'immatriculation de la Newco au Registre du Commerce, date à laquelle ses stipulations seront reprises dans les statuts et le pacte d'associés de la Newco.</p>
+                        </div>
+                    </div>
+
+                    <div class="article">
+                        <h4 class="article-title">Article 6.2 - Calendrier de mise en œuvre</h4>
+                        <div class="article-content">
+                            <p>Les Parties s'engagent à accomplir les diligences nécessaires pour permettre l'immatriculation de la Newco dans un délai de <span contenteditable="true" class="editable" data-field="delai_immat">soixante (60) jours</span> à compter de la signature du présent protocole.</p>
+                        </div>
+                    </div>
+
+                    <div class="article">
+                        <h4 class="article-title">Article 6.3 - Droit applicable et juridiction compétente</h4>
+                        <div class="article-content">
+                            <p>Le présent protocole est soumis au droit marocain. Tout litige relatif à son interprétation ou à son exécution sera soumis à la compétence exclusive des tribunaux de <span contenteditable="true" class="editable" data-field="juridiction">Casablanca</span>.</p>
+                        </div>
+                    </div>
+
+                    <div class="article">
+                        <h4 class="article-title">Article 6.4 - Clause de divisibilité</h4>
+                        <div class="article-content">
+                            <p>Si l'une quelconque des stipulations du présent protocole devait être déclarée nulle ou inapplicable, les autres stipulations resteraient en vigueur et de plein effet.</p>
+                        </div>
+                    </div>
+
+                    <div class="article">
+                        <h4 class="article-title">Article 6.5 - Intégralité de l'accord</h4>
+                        <div class="article-content">
+                            <p>Le présent protocole, ensemble ses annexes, constitue l'intégralité de l'accord entre les Parties et remplace tout accord, engagement ou discussion antérieur relatif à son objet.</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box" style="margin-top: 30px;">
+                        <div class="highlight-box-title">⚠️ Avertissement juridique</div>
+                        <p>Le présent protocole est établi à titre de projet et n'a pas valeur de conseil juridique définitif. Les Parties sont expressément invitées à consulter leurs conseils juridiques respectifs avant toute signature. Anthropic et Claude ne sauraient être tenus responsables des conséquences de l'utilisation de ce document.</p>
+                    </div>
+                </div>
+
+                <!-- SIGNATURES -->
+                <div class="signature-section">
+                    <h2 class="section-title">Signatures</h2>
+                    
+                    <p style="text-align: center; margin-bottom: 20px;">
+                        Fait à <span contenteditable="true" class="editable" data-field="lieu_signature">____________</span>, le <span contenteditable="true" class="editable" data-field="date_signature">____/____/2025</span>
+                    </p>
+                    <p style="text-align: center; margin-bottom: 40px;">
+                        En deux (2) exemplaires originaux, un pour chaque Partie.
+                    </p>
+
+                    <div class="signature-grid">
+                        <div class="signature-box">
+                            <div class="signature-label">Pour le Fondateur</div>
+                            <div class="signature-name">Mr. Jad <span contenteditable="true" class="editable" data-field="founder_lastname" data-placeholder="[NOM]"></span></div>
+                            <div class="signature-line">Signature précédée de la mention « Lu et approuvé »</div>
+                        </div>
+                        <div class="signature-box">
+                            <div class="signature-label">Pour KEF Ventures</div>
+                            <div class="signature-name">Mr. Karim EL-FEKKAK</div>
+                            <div class="signature-line">Signature précédée de la mention « Lu et approuvé »</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANNEXES -->
+                <div class="annexe" id="annexes">
+                    <h2 class="section-title">Annexes</h2>
+                    
+                    <div class="annexe-title">Annexe 1 : Description détaillée de la Solution BLAN'LIA STUDIO</div>
+                    <div class="article-content">
+                        <p><em>[À compléter avec la documentation technique détaillée de la solution]</em></p>
+                    </div>
+
+                    <div class="annexe-title" style="margin-top: 40px;">Annexe 2 : Inventaire de la Propriété Intellectuelle apportée</div>
+                    <div class="article-content">
+                        <p><em>[À compléter avec l'inventaire exhaustif des éléments de PI]</em></p>
+                    </div>
+
+                    <div class="annexe-title" style="margin-top: 40px;">Annexe 3 : Business Plan résumé</div>
+                    <div class="article-content">
+                        <p><em>[À annexer]</em></p>
+                    </div>
+
+                    <div class="annexe-title" style="margin-top: 40px;">Annexe 4 : Projections financières sur 5 ans</div>
+                    <div class="article-content">
+                        <p><em>[À annexer]</em></p>
+                    </div>
+
+                    <div class="annexe-title" style="margin-top: 40px;">Annexe 5 : Modèle de Pacte d'Associés</div>
+                    <div class="article-content">
+                        <p><em>[À annexer]</em></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-save functionality
+        let saveTimeout;
+        const STORAGE_KEY = 'protocole_blanlia_data';
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            setupAutoSave();
+        });
+
+        function setupAutoSave() {
+            // Listen for changes on all editable elements
+            document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                el.addEventListener('input', () => {
+                    clearTimeout(saveTimeout);
+                    updateSaveStatus('saving');
+                    saveTimeout = setTimeout(saveData, 1000);
+                });
+            });
+        }
+
+        function saveData() {
+            const data = {};
+            document.querySelectorAll('[data-field]').forEach(el => {
+                const field = el.getAttribute('data-field');
+                data[field] = el.innerHTML;
+            });
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            updateSaveStatus('saved');
+        }
+
+        function loadSavedData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                Object.keys(data).forEach(field => {
+                    const el = document.querySelector(`[data-field="${field}"]`);
+                    if (el) {
+                        el.innerHTML = data[field];
+                    }
+                });
+                updateSaveStatus('saved');
+            }
+        }
+
+        function updateSaveStatus(status) {
+            const statusEl = document.getElementById('saveStatus');
+            if (status === 'saving') {
+                statusEl.textContent = 'Sauvegarde en cours...';
+                statusEl.classList.remove('saved');
+            } else if (status === 'saved') {
+                const now = new Date();
+                statusEl.textContent = `Sauvegardé à ${now.toLocaleTimeString('fr-FR')}`;
+                statusEl.classList.add('saved');
+            }
+        }
+
+        function resetDocument() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser le document ? Toutes les modifications seront perdues.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        async function downloadPDF() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('active');
+
+            // Save current state
+            saveData();
+
+            const element = document.getElementById('document');
+            
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: 'Protocole_Association_BLANLIA_' + new Date().toISOString().split('T')[0] + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true,
+                    letterRendering: true
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            try {
+                await html2pdf().set(opt).from(element).save();
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                alert('Une erreur est survenue lors de la génération du PDF. Veuillez réessayer.');
+            } finally {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
